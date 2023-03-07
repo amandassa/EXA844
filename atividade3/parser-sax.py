@@ -7,29 +7,27 @@ class OSMHandler (xml.sax.ContentHandler):
         self.longitude = ''
         self.tipo = ''
         self.nome = ''
-        self.str = ''
         self.isAmenity = False
 
     def startElement(self, tag, attrs):
         self.currentData = tag
-        if tag == "node":  
+        if tag == "node":
             self.latitude = attrs['lat']
             self.longitude = attrs['lon']
-            self.str += f'Latitude: {self.latitude:^10}\tLongitude: {self.longitude:^10}\t'
+            # print(f'{self.latitude}, {self.longitude}')
 
         if tag == "tag":
             # se o atributo k=amenity então printe o atributo v
             if (attrs['k'] == 'amenity'):
                 self.isAmenity = True
-                self.tipo = attrs['v']                
-            if (attrs['k'] == 'name'):
+                self.tipo = attrs['v']
+            if (attrs['k'] == 'name') and (self.isAmenity == True):
                 self.nome = attrs['v']
-            self.str += f'Tipo: {self.tipo:^10}\tNome: {self.nome:^10}\t'
-
+                print(f'{self.nome},{self.tipo},{self.latitude},{self.longitude}')
     
-    def endElement(self, tag):
-        if tag == "node" and self.isAmenity == True:
-            print(self.str)
+    # def endElement(self, tag):
+        # if tag == "node" and self.isAmenity == True:
+        #     print(self.str)
             
 if ( __name__ == "__main__"):
    parser = xml.sax.make_parser()
