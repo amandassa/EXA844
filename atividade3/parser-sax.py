@@ -1,38 +1,54 @@
 import xml.sax
+import time as t
 
-class OSMHandler (xml.sax.ContentHandler):
+
+class OSMHandler(xml.sax.ContentHandler):
     def __init__(self):
-        self.currentData = ''
-        self.latitude = ''
-        self.longitude = ''
-        self.tipo = ''
-        self.nome = ''
-        self.isAmenity = False
+        self.inNode = ""
+        self.latitude = ""
+        self.longitude = ""
+        self.tipo = ""
+        self.value = ""
+        self.nome = ""
 
     def startElement(self, tag, attrs):
-        self.currentData = tag
+        if tag != "node" and tag != "tag":
+            return
         if tag == "node":
-            self.latitude = attrs['lat']
-            self.longitude = attrs['lon']
-            # print(f'{self.latitude}, {self.longitude}')
+            self.latitude = attrs.get("lat")
+            self.longitude = attrs.get("lon")
+            self.inNode = True
+            return
+        if not self.inNode:
+            return
+        self.value = attrs.get("v")
+        key = attrs.get("k")
+        if key == "amenity":
+            self.tipo = self.value
+        elif key == "name":
+            self.nome = self.value
 
-        if tag == "tag":
-            # se o atributo k=amenity então printe o atributo v
-            if (attrs['k'] == 'amenity'):
-                self.isAmenity = True
-                self.tipo = attrs['v']
-            if (attrs['k'] == 'name') and (self.isAmenity == True):
-                self.nome = attrs['v']
-                print(f'{self.nome},{self.tipo},{self.latitude},{self.longitude}')
-    
-    # def endElement(self, tag):
-        # if tag == "node" and self.isAmenity == True:
-        #     print(self.str)
-            
-if ( __name__ == "__main__"):
-   parser = xml.sax.make_parser()
-   parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+    def endElement(self, tag):
+        if tag != "node":
+            return
 
+        if self.tipo != "":
+            print(f'Nome: {self.nome:<10}\tTipo: {self.tipo:<10}\tLat: {self.latitude:^10}\tLon: {self.longitude:^10}')
+        self.__resetVariables()
+
+    def __resetVariables(self):
+        self.inNode = ""
+        self.latitude = ""
+        self.longitude = ""
+        self.tipo = ""
+        self.value = ""
+        self.canPrint = False
+
+
+start = t.time()
+parser = xml.sax.make_parser()
 Handler = OSMHandler()
-parser.setContentHandler( Handler )
-parser.parse('map.osm')
+parser.setContentHandler(Handler)
+parser.parse("map.osm")
+seconds = t.time() - start
+print("A execução levou {:.2f} segundos.".format(seconds))
