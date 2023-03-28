@@ -53,7 +53,7 @@ print("Text : {}".format(text))
 print ("</br>")
 print ("</br>")
 # exibir arquivo na pagina
-for l in linhas:
+for l in reversed(linhas):
     print(l)
     print("<br>")
 
