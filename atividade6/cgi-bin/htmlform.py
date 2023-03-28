@@ -1,4 +1,4 @@
-#!c:\python37\python.exe
+#!/usr/bin/python3
 # Import modules for CGI handling
 import cgi, cgitb
 cgitb.enable()
