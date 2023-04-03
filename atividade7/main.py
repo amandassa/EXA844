@@ -7,12 +7,12 @@ import time
 @functions_framework.http
 def hello_http(request):    
     request_json = request.get_json(silent=True)
-
+    request_args = request.args
     map = {}
     if request_json and 'action' in request_json and request_json['action']=="put":
         try:     
             conn = pymysql.connect(   
-                host="ip do servidor MySQL",
+                host="localhost",
                 port = 3306,
                 user="root",
                 password="senha",
@@ -31,10 +31,9 @@ def hello_http(request):
         except Exception as e:
             map["message"] = 'Error: {}'.format(str(e))            
     elif request_args and 'action' in request_args and request_json['action']=="get":
-        #TODO
         try:     
             conn = pymysql.connect(   
-                host="ip do servidor MySQL",
+                host="localhost",
                 port = 3306,
                 user="root",
                 password="senha",
@@ -44,7 +43,8 @@ def hello_http(request):
             cursor = conn.cursor()
             # TODO get response from db
             cursor.execute("select * from Messages")
-            conn.commit()
+            result = cursor.fetchall()
+            map["message"] = result
         except Exception as e:
             map["message"] = 'Error: {}'.format(str(e))            
 
