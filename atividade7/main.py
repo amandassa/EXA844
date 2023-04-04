@@ -1,3 +1,14 @@
+'''
+available at: https://blog-vnwa7pvl7q-rj.a.run.app
+SEND MESSAGE (POST): {
+"action": "put"
+"autor": "name",
+"message": "message"
+}
+RETRIEVE (POST): {
+"action": "get"
+}
+'''
 import functions_framework
 import pymysql
 
@@ -7,15 +18,14 @@ import time
 @functions_framework.http
 def hello_http(request):    
     request_json = request.get_json(silent=True)
-    request_args = request.args
     map = {}
     if request_json and 'action' in request_json and request_json['action']=="put":
         try:     
             conn = pymysql.connect(   
-                host="localhost",
+                host="35.199.87.51",
                 port = 3306,
                 user="root",
-                password="senha",
+                password="root",
                 db="Blog",
                 cursorclass=pymysql.cursors.DictCursor
             )
@@ -30,25 +40,27 @@ def hello_http(request):
                     map["message"] = "put executed successfully"     
         except Exception as e:
             map["message"] = 'Error: {}'.format(str(e))            
-    elif request_args and 'action' in request_args and request_json['action']=="get":
+    elif request_json and 'action' in request_json and request_json['action']=="get":
         try:     
             conn = pymysql.connect(   
-                host="localhost",
+                host="35.199.87.51",
                 port = 3306,
                 user="root",
-                password="senha",
+                password="root",
                 db="Blog",
                 cursorclass=pymysql.cursors.DictCursor
                 )
             cursor = conn.cursor()
-            # TODO get response from db
-            cursor.execute("select * from Messages")
+            # 
+            cursor.execute("select * from Messages;")
+            messages = []
             result = cursor.fetchall()
-            map["message"] = result
+            for it in result:
+                messages.append({"message": it['message'], "autor": it["autor"], "date": it["date"].strftime("%m/%d/%Y, %H:%M:%S")})
+            map["message"] = messages
+
         except Exception as e:
             map["message"] = 'Error: {}'.format(str(e))            
-
-        map["message"] = "get not implemented yet"
     else:
         map["message"] = "action missing or with wrong value!"
     
